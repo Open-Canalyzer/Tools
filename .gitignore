@@ -34,3 +34,6 @@
 
 # Build folder
 build
+
+# IDE folder
+.idea
