@@ -1,4 +1,5 @@
 #include "slcan.h"
+#include "tools.h"
 
 #include <stdio.h>
 #include <stdint.h>
@@ -110,6 +111,64 @@ char AutoPollMode(char mode)
   return ret;
 }
 
+char Tx11(const char* in, int size)
+{
+  char ret = SLCAN_OK;
+  int Data[8];
+  //skip the first char
+  in++;
+  size--;
+
+  //first three chars are the hex ID
+  //second char is the number of bytes
+  //remaining chars the individual bytes
+
+  int identifier = hexdec(in, 3);
+  in += 3;
+  size -=3;
+  int length =  hexdec(in, 1);
+  in++;
+  size--;
+
+  if(identifier != -1)
+  {
+    if (length != -1)
+    {
+      if (size == length * 2)
+      {
+        for (int i = 0; i < length; i++)
+        {
+          Data[i] = hexdec(in, 2);
+          if(Data[i] == -1)
+          {
+            ret = SLCAN_ERR;
+            break;
+          }
+          in += 2;
+        }
+      }
+      else
+        ret = SLCAN_ERR;
+    }
+    else
+      ret = SLCAN_ERR;
+  }
+  else
+    ret = SLCAN_ERR;
+
+  //CAN frame is ready to send
+  if(ret == SLCAN_OK)
+  {
+    printf("T: ID: 0x%X Data: ", identifier);
+    for(int i = 0; i< length; i++)
+      printf("0x%X ", Data[i]);
+    printf("\n");
+  }
+
+
+  return ret;
+}
+
 char ParseCommand(const char* in, int commandsize)
 {
   commandsize -= 1; //dont care about the CR
@@ -131,6 +190,7 @@ char ParseCommand(const char* in, int commandsize)
       ret = CloseCanBus();
       break;
     case SLCAN_CMD_TX11:
+      Tx11(in, commandsize);
       break;
     case SLCAN_CMD_TX29:
       break;
