@@ -116,8 +116,8 @@ int main(int argc, char** argv)
 
     if (pb_decode(&stream, CanMessage_fields, &RecCanMessage))
     {
-      printf("DLC: %u RTR: %u IDE: %u ID: 0x%x Data1: 0x%X Data2 0x%X\n", 
-        RecCanMessage.DLC, RecCanMessage.RTR, RecCanMessage.IDE,
+      printf("Header: 0x%X ID: 0x%x Data1: 0x%X Data2 0x%X\n", 
+        RecCanMessage.Header,
         RecCanMessage.ID, RecCanMessage.Data1, RecCanMessage.Data2);
     }
     //sleep(1);

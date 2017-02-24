@@ -1,10 +1,32 @@
 syntax = "proto2";
 
 message CanMessage {
-    required uint32 DLC = 1;
-    required uint32 RTR = 2;
-    required uint32 IDE = 3;
-    required uint32 ID = 4;
-    required uint32 Data1 = 5;
-    required uint32 Data2 = 6;
+  required uint32 TimeStamp = 1;
+  required uint32 Header = 2; // DLC, RTR, IDE
+  required uint32 ID = 3;
+  required uint32 Data1 = 4;
+  required uint32 Data2 = 5;
+}
+
+
+enum Parameters {
+  ERROR = 0;    // Receive and clear errors
+  SET_MCR = 1;  // Set MCR value (RUN must be 0)
+  SET_BTR = 2;  // Set BTR value (RUN must be 0)
+  RUN = 3;      // Set to 1 to start CAN, to 0 to stop
+  GET_SN = 4;   // Get serial numer of unit
+  GET_FW = 5;   // Get firmware version of unit
+  SET_LEDS = 6; // bit0 = ACT, bit1=STAT, bit2=ERR
+}
+
+message ControlMessage{
+  required Parameters Parameter = 1;
+  required uint32 Value = 2;
+}
+
+message UsbMessage{
+  oneof payload {
+    ControlMessage ControlMsg = 1;
+    CanMessage CanMsg = 2;
+  }
 }
